@@ -1,6 +1,6 @@
 # Backend em Express (Node.js + TypeScript)# Backend-em-Express
 
-API RESTful com autenticação JWT, MongoDB e arquitetura em camadas (MVC).
+API RESTful com autenticação JWT, PostgreSQL e arquitetura em camadas (MVC).
 
 ### Vídeo explicativo
 Assista ao vídeo para uma explicação/demonstração rapída do projeto (cadastro e login) https://www.youtube.com/watch?v=l7WnbtVhUq0
@@ -49,9 +49,9 @@ O projeto segue uma arquitetura em camadas:
 src/
 ├── config/          # Configurações e validação de variáveis de ambiente
 ├── controllers/     # Controladores (lógica de requisição/resposta)
-├── database/        # Configuração de conexão com MongoDB
+├── database/        # Conexão e helpers do PostgreSQL
 ├── middlewares/     # Middlewares (autenticação, tratamento de erros)
-├── models/          # Modelos Mongoose (User e Series)
+├── models/          # Interfaces de dados (User e Series)
 ├── routes/          # Definição de rotas
 ├── services/        # Lógica de negócio
 └── utils/           # Utilitários (validadores, logger)
@@ -61,8 +61,8 @@ src/
 
 ### Pré-requisitos
 - Node.js 18+ e npm
-- MongoDB (local ou Atlas)
-- Docker (opcional, para rodar MongoDB local)
+- PostgreSQL (local ou ...)
+- Docker (opcional, para rodar PostgreSQL local)
 
 ### Passo a Passo
 
@@ -82,22 +82,26 @@ npm install
 Crie um arquivo `.env` na raiz do projeto:
 
 ```env
-PORT= sua porta
-MONGO_URI= link do mongodb
-JWT_SECRET= senha
-JWT_EXPIRES_IN= por quanto tempo o token JWT será válido após emitido
+PORT=3000
+JWT_SECRET=uma_chave_segura_aqui
+JWT_EXPIRES_IN=1d
+
+# Opção 1: variáveis separadas
+PGHOST=localhost
+PGPORT=5432
+PGUSER=postgres
+PGPASSWORD=postgres
+PGDATABASE=app_db
+
+# Opção 2: connection string (se definido, sobrescreve as variáveis acima)
+# DATABASE_URL=postgresql://postgres:postgres@localhost:5432/app_db
 ```
 
-**Para MongoDB local com Docker:**
+**Banco local com Docker Compose (recomendado):**
 ```bash
-docker run -d --name mongo-dev -p porta:porta mongo:6
+docker compose up -d postgres
 ```
-
-**Para MongoDB Atlas (produção):**
-- Acesse https://www.mongodb.com/cloud/atlas
-- Crie um cluster gratuito
-- Obtenha a connection string e use em `MONGO_URI`
-- Exemplo: `mongodb+srv://user:password@cluster.mongodb.net/database?retryWrites=true&w=majority`
+Adminer (UI web opcional) estará em http://localhost:8080 (server: postgres, user: postgres, pass: postgres, db: app_db)
 
 4. **Execute em modo de desenvolvimento**
 ```bash
@@ -214,8 +218,8 @@ curl -X DELETE http://localhost:porta/api/series/:id \
 - **Node.js** - Runtime JavaScript
 - **TypeScript** - Tipagem estática
 - **Express** - Framework web
-- **MongoDB** - Banco de dados NoSQL
-- **Mongoose** - ODM para MongoDB
+- **PostgreSQL** - Banco de dados relacional
+- **pg** - Driver para PostgreSQL
 - **JWT** - Autenticação via tokens
 - **bcrypt** - Hash de senhas
 - **Winston** - Logging estruturado

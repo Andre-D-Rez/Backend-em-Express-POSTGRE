@@ -33,11 +33,12 @@ export const register = async (req: Request, res: Response) => {
     }
 
     const user = await userService.createUser({ name, email, password });
-    logger.info('Register: usuário criado %s (%s)', user._id.toString(), user.email);
-    return res.status(201).json({ message: 'Usuário criado com sucesso', user: { id: user._id, name: user.name, email: user.email } });
+    logger.info('Register: usuário criado %s (%s)', String(user.id), user.email);
+    return res.status(201).json({ message: 'Usuário criado com sucesso', user: { id: user.id, name: user.name, email: user.email } });
   } catch (err: any) {
-    if (err && err.code === 11000) {
-      logger.warn('Register: violação de unique index (email)');
+    // 23505 = unique_violation no PostgreSQL
+    if (err && (err.code === '23505' || err.code === 23505)) {
+      logger.warn('Register: violação de unique (email)');
       return res.status(422).json({ message: 'Email já cadastrado' });
     }
     logger.error('Register error: %o', err);
@@ -72,8 +73,8 @@ export const login = async (req: Request, res: Response) => {
     }
 
     // jwt.sign type definitions are sometimes strict; cast to any to satisfy TS here
-    const secret = (JWT_SECRET || '') as any;
-    const token = (jwt as any).sign({ id: user._id, email: user.email }, secret, { expiresIn: JWT_EXPIRES_IN } as any);
+  const secret = (JWT_SECRET || '') as any;
+  const token = (jwt as any).sign({ id: user.id, email: user.email }, secret, { expiresIn: JWT_EXPIRES_IN } as any);
     logger.info('Login: token emitido para %s', email);
     return res.json({ token });
   } catch (err) {

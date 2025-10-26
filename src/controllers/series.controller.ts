@@ -81,7 +81,7 @@ export const createSeries = async (req: AuthRequest, res: Response) => {
       status
     });
 
-    logger.info(`CreateSeries: série criada ${series._id} para usuário ${userId}`);
+    logger.info(`CreateSeries: série criada ${series.id} para usuário ${userId}`);
     return res.status(201).json({ 
       message: 'Série criada com sucesso', 
       series 
@@ -91,11 +91,6 @@ export const createSeries = async (req: AuthRequest, res: Response) => {
     
     if (err.message && err.message.includes('exceder')) {
       return res.status(422).json({ message: err.message });
-    }
-    
-    if (err.name === 'ValidationError') {
-      const messages = Object.values(err.errors).map((e: any) => e.message);
-      return res.status(422).json({ message: 'Erro de validação', errors: messages });
     }
     
     return res.status(500).json({ message: 'Erro no servidor' });
@@ -158,10 +153,14 @@ export const getSeriesById = async (req: AuthRequest, res: Response) => {
     }
 
     const { id } = req.params;
-
     if (!id) {
       logger.warn('GetSeriesById: ID não fornecido');
       return res.status(422).json({ message: 'ID da série não fornecido' });
+    }
+    const sid = Number(id);
+    if (!Number.isFinite(sid) || sid <= 0) {
+      logger.warn('GetSeriesById: ID inválido');
+      return res.status(422).json({ message: 'ID inválido' });
     }
 
     const series = await seriesService.getSeriesById(userId, id);
@@ -193,6 +192,11 @@ export const updateSeriesFull = async (req: AuthRequest, res: Response) => {
     if (!id) {
       logger.warn('UpdateSeriesFull: ID não fornecido');
       return res.status(422).json({ message: 'ID da série não fornecido' });
+    }
+    const sid = Number(id);
+    if (!Number.isFinite(sid) || sid <= 0) {
+      logger.warn('UpdateSeriesFull: ID inválido');
+      return res.status(422).json({ message: 'ID inválido' });
     }
 
     // Validações de campos obrigatórios (PUT requer todos os campos)
@@ -272,11 +276,6 @@ export const updateSeriesFull = async (req: AuthRequest, res: Response) => {
       return res.status(422).json({ message: err.message });
     }
     
-    if (err.name === 'ValidationError') {
-      const messages = Object.values(err.errors).map((e: any) => e.message);
-      return res.status(422).json({ message: 'Erro de validação', errors: messages });
-    }
-    
     return res.status(500).json({ message: 'Erro no servidor' });
   }
 };
@@ -295,6 +294,11 @@ export const updateSeriesPartial = async (req: AuthRequest, res: Response) => {
     if (!id) {
       logger.warn('UpdateSeriesPartial: ID não fornecido');
       return res.status(422).json({ message: 'ID da série não fornecido' });
+    }
+    const sid = Number(id);
+    if (!Number.isFinite(sid) || sid <= 0) {
+      logger.warn('UpdateSeriesPartial: ID inválido');
+      return res.status(422).json({ message: 'ID inválido' });
     }
 
     if (!updates || Object.keys(updates).length === 0) {
@@ -366,11 +370,6 @@ export const updateSeriesPartial = async (req: AuthRequest, res: Response) => {
       return res.status(422).json({ message: err.message });
     }
     
-    if (err.name === 'ValidationError') {
-      const messages = Object.values(err.errors).map((e: any) => e.message);
-      return res.status(422).json({ message: 'Erro de validação', errors: messages });
-    }
-    
     return res.status(500).json({ message: 'Erro no servidor' });
   }
 };
@@ -388,6 +387,11 @@ export const deleteSeries = async (req: AuthRequest, res: Response) => {
     if (!id) {
       logger.warn('DeleteSeries: ID não fornecido');
       return res.status(422).json({ message: 'ID da série não fornecido' });
+    }
+    const sid = Number(id);
+    if (!Number.isFinite(sid) || sid <= 0) {
+      logger.warn('DeleteSeries: ID inválido');
+      return res.status(422).json({ message: 'ID inválido' });
     }
 
     const deleted = await seriesService.deleteSeries(userId, id);

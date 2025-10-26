@@ -1,20 +1,23 @@
 services:
-  mongo:
-    image: mongo
+  postgres:
+    image: postgres:16
     restart: always
     ports:
-      - 27017:27017
+      - "5432:5432"
     environment:
-      MONGO_INITDB_ROOT_USERNAME: root
-      MONGO_INITDB_ROOT_PASSWORD: example
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: app_db
+    volumes:
+      - pgdata:/var/lib/postgresql/data
 
-  mongo-express:
-    image: mongo-express
+  adminer:
+    image: adminer
     restart: always
     ports:
-      - 8081:8081
+      - "8080:8080"
     environment:
-      ME_CONFIG_MONGODB_URL: mongodb://root:example@mongo:27017/
-      ME_CONFIG_BASICAUTH_ENABLED: true
-      ME_CONFIG_BASICAUTH_USERNAME: mongoexpressuser
-      ME_CONFIG_BASICAUTH_PASSWORD: mongoexpresspass
+      - ADMINER_DEFAULT_SERVER=postgres
+
+volumes:
+  pgdata:
