@@ -21,14 +21,14 @@ if [ ! -d node_modules ]; then
     echo ""
 fi
 
-# Verificar se MongoDB está rodando (local)
-if [ -z "$(docker ps -q -f name=mongo-dev)" ]; then
-    echo "🔧 MongoDB local não encontrado. Deseja iniciar um container? (s/n)"
+# Verificar se PostgreSQL está rodando (local via docker-compose)
+if [ -z "$(docker ps -q -f name=backend-em-express-postgre_postgres_1)" ]; then
+    echo "🔧 PostgreSQL local não encontrado. Deseja iniciar via docker-compose? (s/n)"
     read -r response
     if [[ "$response" =~ ^([sS][iI][mM]|[sS])$ ]]; then
-        echo "🐳 Iniciando MongoDB local..."
-        docker run -d --name mongo-dev -p 27017:27017 mongo:6
-        echo "✅ MongoDB iniciado na porta 27017"
+        echo "🐳 Iniciando PostgreSQL com docker-compose..."
+        docker compose up -d postgres
+        echo "✅ PostgreSQL iniciado na porta 5432"
         sleep 2
     fi
     echo ""

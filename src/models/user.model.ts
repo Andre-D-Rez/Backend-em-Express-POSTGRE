@@ -1,18 +1,10 @@
-import mongoose, { Schema, Document } from 'mongoose';
-
-export interface IUser extends Document {
+export interface IUser {
+  id: number;
   name: string;
   email: string;
-  password: string;
+  password: string; // hashed
+  created_at?: Date;
+  updated_at?: Date;
 }
 
-const UserSchema: Schema = new Schema<IUser>(
-  {
-    name: { type: String, required: true, minlength: 2, trim: true },
-    email: { type: String, required: true, unique: true, lowercase: true, trim: true },
-    password: { type: String, required: true, select: false }
-  },
-  { timestamps: true }
-);
-
-export default mongoose.model<IUser>('User', UserSchema);
+// Sem export default de modelo; usamos consultas SQL via pg
