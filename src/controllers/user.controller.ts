@@ -73,10 +73,32 @@ export const login = async (req: Request, res: Response) => {
     }
 
     // jwt.sign type definitions are sometimes strict; cast to any to satisfy TS here
-  const secret = (JWT_SECRET || '') as any;
-  const token = (jwt as any).sign({ id: user.id, email: user.email }, secret, { expiresIn: JWT_EXPIRES_IN } as any);
-    logger.info('Login: token emitido para %s', email);
-    return res.json({ token });
+    const secret = (JWT_SECRET || '') as any;
+    logger.info('Login: emitindo token para %s com expiresIn=%s', email, JWT_EXPIRES_IN);
+    const token = (jwt as any).sign({ id: user.id, email: user.email }, secret, { expiresIn: JWT_EXPIRES_IN } as any);
+
+    // Metadados de expiração para facilitar depuração (não contém segredo)
+    const decoded: any = jwt.decode(token);
+    const iat = decoded?.iat ? Number(decoded.iat) : undefined;
+    const exp = decoded?.exp ? Number(decoded.exp) : undefined;
+    const now = Math.floor(Date.now() / 1000);
+    const expiresInSeconds = exp && iat ? exp - iat : undefined;
+    const expiresAt = exp ? new Date(exp * 1000).toISOString() : undefined;
+
+    logger.info('Login: token emitido. now=%d, iat=%s, exp=%s, expiresInSeconds=%s', now, String(iat), String(exp), String(expiresInSeconds));
+
+    return res.json({
+      message: 'Login realizado com sucesso',
+      token,
+      meta: {
+        expiresIn: JWT_EXPIRES_IN,
+        iat,
+        exp,
+        now,
+        expiresInSeconds,
+        expiresAt
+      }
+    });
   } catch (err) {
     logger.error('Login error: %o', err);
     return res.status(500).json({ message: 'Erro no servidor' });
